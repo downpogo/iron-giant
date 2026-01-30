@@ -1,7 +1,14 @@
 {
   "name": "@iron-giant/core",
   "type": "module",
-  "exports": {},
+  "exports": {
+    "./db": {
+      "default": "./src/db/db.ts"
+    },
+    "./context": {
+      "default": "./src/context.ts"
+    }
+  },
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",

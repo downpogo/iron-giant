@@ -1,12 +1,12 @@
 import { desc, inArray } from "drizzle-orm"
 import { ulid } from "ulid"
-import { getDB } from "../db/index.js"
 import { taskTable } from "../db/schema.js"
 import type { CreateTaskInput } from "./request.js"
 import type { Task } from "./task.js"
+import { getContext } from "../context.js"
 
 export async function createTask(input: CreateTaskInput): Promise<string> {
-  const db = getDB()
+  const { db } = getContext()
 
   const id = ulid()
   const now = new Date().toISOString()
@@ -33,7 +33,7 @@ export async function createTask(input: CreateTaskInput): Promise<string> {
 }
 
 export async function listTasks(): Promise<Array<Task>> {
-  const db = getDB()
+  const { db } = getContext()
 
   const rows = await db
     .select({

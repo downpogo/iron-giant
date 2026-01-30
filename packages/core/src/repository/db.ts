@@ -1,14 +1,14 @@
 import { desc } from "drizzle-orm"
 import { ulid } from "ulid"
-import { getDB } from "../db/index.js"
 import { repositoryTable } from "../db/schema.js"
 import type { CreateRepositoryInput } from "./request.js"
 import type { Repository } from "./repository.js"
+import { getContext } from "../context.js"
 
 export async function createRepository(
   input: CreateRepositoryInput,
 ): Promise<string> {
-  const db = getDB()
+  const { db } = getContext()
 
   const id = ulid()
   const now = new Date().toISOString()
@@ -34,7 +34,7 @@ export async function createRepository(
 }
 
 export async function listRepository(): Promise<Array<Repository>> {
-  const db = getDB()
+  const { db } = getContext()
 
   return db
     .select({

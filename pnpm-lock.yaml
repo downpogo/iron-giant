@@ -40,6 +40,9 @@ importers:
       "@cloudflare/vite-plugin":
         specifier: ^1.13.8
         version: 1.22.0(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260124.0)(wrangler@4.61.0(@cloudflare/workers-types@4.20260124.0))
+      "@iron-giant/core":
+        specifier: workspace:*
+        version: link:../../packages/core
       "@tailwindcss/vite":
         specifier: ^4.0.6
         version: 4.1.18(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))
@@ -111,7 +114,7 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       wrangler:
-        specifier: ^4.40.3
+        specifier: ^4.61.0
         version: 4.61.0(@cloudflare/workers-types@4.20260124.0)
 
   packages/config:
