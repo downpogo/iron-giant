@@ -1,0 +1,22 @@
+{
+  "name": "iron-giant",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "format": "prettier --write .",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260124.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.5.3",
+    "turbo": "^2.7.6"
+  },
+  "packageManager": "pnpm@9.5.0",
+  "engines": {
+    "node": ">=24"
+  }
+}

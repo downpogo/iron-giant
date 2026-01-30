@@ -1,0 +1,25 @@
+{
+  "name": "@iron-giant/core",
+  "type": "module",
+  "exports": {},
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@daytonaio/sdk": "^0.136.0",
+    "@t3-oss/env-core": "^0.13.10",
+    "dotenv": "^16.6.1",
+    "drizzle-orm": "^0.45.1",
+    "ulid": "^3.0.2",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@iron-giant/config": "workspace:*",
+    "@types/node": "catalog:",
+    "drizzle-kit": "^0.31.8",
+    "typescript": "catalog:"
+  }
+}
