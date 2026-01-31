@@ -46,6 +46,9 @@ importers:
       "@orpc/client":
         specifier: ^1.13.4
         version: 1.13.4
+      "@orpc/contract":
+        specifier: ^1.13.4
+        version: 1.13.4
       "@orpc/openapi":
         specifier: ^1.13.4
         version: 1.13.4(ws@8.19.0)
