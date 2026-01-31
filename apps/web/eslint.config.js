@@ -4,7 +4,7 @@ import { tanstackConfig } from "@tanstack/eslint-config"
 
 export default [
   {
-    ignores: [".wrangler/**"],
+    ignores: [".wrangler/**", "src/components/ui/**"],
   },
   ...tanstackConfig,
 ]
