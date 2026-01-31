@@ -1,8 +1,8 @@
 import { desc } from "drizzle-orm"
 import { ulid } from "ulid"
 import { repositoryTable } from "../db/schema.js"
-import type { CreateRepositoryInput } from "./request.js"
-import type { Repository } from "./repository.js"
+import type { CreateRepositoryInput } from "../input.js"
+import type { Repository } from "../domain.js"
 import { getContext } from "../context.js"
 
 export async function createRepository(

@@ -1,8 +1,8 @@
 import { and, desc, inArray, eq } from "drizzle-orm"
 import { ulid } from "ulid"
 import { taskTable } from "../db/schema.js"
-import type { CreateTaskInput } from "./request.js"
-import type { Task } from "./task.js"
+import type { CreateTaskInput } from "../input.js"
+import type { Task } from "../domain.js"
 import { getContext } from "../context.js"
 
 export async function createTask(input: CreateTaskInput): Promise<string> {
@@ -53,4 +53,31 @@ export async function listTask(repositoryID: string): Promise<Array<Task>> {
     .orderBy(desc(taskTable.updatedAt), desc(taskTable.createdAt))
 
   return rows
+}
+
+export async function getTask(
+  repositoryID: string,
+  taskID: string,
+): Promise<Task> {
+  const { db } = getContext()
+
+  const rows = await db
+    .select({
+      id: taskTable.id,
+      name: taskTable.name,
+      description: taskTable.description,
+      status: taskTable.status,
+      repositoryBranch: taskTable.repositoryBranch,
+    })
+    .from(taskTable)
+    .where(
+      and(eq(taskTable.id, taskID), eq(taskTable.repositoryID, repositoryID)),
+    )
+
+  const task = rows[0]
+  if (!task) {
+    throw new Error("Task not found")
+  }
+
+  return task
 }

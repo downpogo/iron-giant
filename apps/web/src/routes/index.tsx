@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Button } from "@/components/ui/button"
+import { orpc } from "@/lib/rpc/client"
 
-export const Route = createFileRoute("/")({ component: App })
+export const Route = createFileRoute("/")({
+  component: App,
+  loader: ({ context }) => {
+    return context.queryClient.ensureQueryData(
+      orpc.repository.list.queryOptions(),
+    )
+  },
+})
 
 function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Button>Get Started</Button>
-    </div>
-  )
+  return <div className="min-h-screen"></div>
 }

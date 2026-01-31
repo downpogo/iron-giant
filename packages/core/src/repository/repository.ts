@@ -1,4 +1,4 @@
-import { type CreateRepositoryInput } from "./request.js"
+import { type CreateRepositoryInput } from "../input.js"
 import * as db from "./db.js"
 
 export type Repository = {
