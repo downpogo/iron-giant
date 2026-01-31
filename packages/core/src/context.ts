@@ -12,10 +12,9 @@ export function withContext<T>(context: ContextValue, fn: () => T): T {
 }
 
 export function getContext(): ContextValue {
-  if (!asyncLocalStorage) {
-    throw new Error("context is not created")
+  const context = asyncLocalStorage.getStore()
+  if (!context) {
+    throw new Error("context not found")
   }
-
-  const store = asyncLocalStorage.getStore()
-  return store!
+  return context
 }

@@ -4,5 +4,6 @@ node_modules
 .turbo
 
 .env
+.env.drizzle
 
 tsconfig.tsbuildinfo

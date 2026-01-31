@@ -12,6 +12,10 @@
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
+    "@iron-giant/core": "workspace:*",
+    "@orpc/client": "^1.13.4",
+    "@orpc/openapi": "^1.13.4",
+    "@orpc/server": "^1.13.4",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.7.0",
     "@tanstack/react-router": "^1.132.0",
@@ -24,7 +28,7 @@
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.0.6",
     "vite-tsconfig-paths": "^6.0.2",
-    "@iron-giant/core": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tanstack/devtools-vite": "^0.3.11",

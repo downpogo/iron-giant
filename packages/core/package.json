@@ -7,6 +7,18 @@
     },
     "./context": {
       "default": "./src/context.ts"
+    },
+    "./repository": {
+      "default": "./src/repository/repository.ts"
+    },
+    "./repository/request": {
+      "default": "./src/repository/request.ts"
+    },
+    "./task": {
+      "default": "./src/task/task.ts"
+    },
+    "./task/request": {
+      "default": "./src/task/request.ts"
     }
   },
   "scripts": {

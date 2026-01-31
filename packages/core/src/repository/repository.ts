@@ -1,7 +1,4 @@
-import {
-  createRepositorySchema,
-  type CreateRepositoryInput,
-} from "./request.js"
+import { type CreateRepositoryInput } from "./request.js"
 import * as db from "./db.js"
 
 export type Repository = {
@@ -12,9 +9,9 @@ export type Repository = {
 
 export async function createRepository(
   input: CreateRepositoryInput,
-): Promise<string> {
-  const parsedInput = createRepositorySchema.parse(input)
-  return db.createRepository(parsedInput)
+): Promise<{ id: string }> {
+  const id = await db.createRepository(input)
+  return { id }
 }
 
 export async function listRepository(): Promise<Array<Repository>> {
