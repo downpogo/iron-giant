@@ -1,59 +1,49 @@
-import { Template } from "e2b"
+import { Template, waitForPort, type SandboxInfo } from "e2b"
 import { Sandbox as E2BSandbox } from "@e2b/code-interpreter"
+
+const AGENT_PORT = 3000
+const AGENT_START_CMD = `sandbox-agent server --no-token --host 0.0.0.0 --port ${AGENT_PORT}`
 
 export class Sandbox {
   private sandbox!: E2BSandbox
 
-  // Creates sandbox for the the task
-  async createFromTask(taskID: string, repoURL: string, repoBranch: string) {
-    // Connect to sandbox if already exists
-    const sandboxBoxID = await this.hasSandboxForTask(taskID)
-    if (sandboxBoxID) {
+  async create(taskID: string, repoURL: string, repoBranch: string) {
+    const sb = await this.getSandbox(taskID)
+    if (sb) {
       console.log("connecting to existing sandbox")
-      this.sandbox = await E2BSandbox.connect(sandboxBoxID)
+      this.sandbox = await E2BSandbox.connect(sb.sandboxId)
       return
     }
 
-    // Get base image using repo url
-    const parsedURL = new URL(repoURL)
-    const repoName = parsedURL.pathname.split("/")[2]
+    const templateName = await this.buildTemplate(repoURL)
 
-    // Build the template using the base image
-    const imageName = `${repoName}-sandbox`
-    const template = Template().fromImage(imageName)
-
-    console.log("building template from image:", imageName)
-    await Template.build(template, imageName)
-
-    // Create the sandbox
     console.log("creating sandbox")
-    this.sandbox = await E2BSandbox.create(imageName, {
+    this.sandbox = await E2BSandbox.create(templateName, {
       allowInternetAccess: true,
       metadata: { taskID },
     })
+    console.log("sandbox created:", this.sandbox.sandboxId)
 
-    // Clone the repo
-    console.log("cloning repo")
+    console.log("cloning repo:", repoURL)
     await this.sandbox.commands.run(`git clone -b ${repoBranch} ${repoURL}`)
+
+    const url = await this.getPreviewURL(AGENT_PORT)
+    console.log("agent running at:", url)
   }
 
-  // Deletes the sandbox
   delete(): Promise<void> {
     return this.sandbox.kill()
   }
 
-  // Executes the given command asynchronously
   async executeCommandAsync(command: string): Promise<void> {
     await this.sandbox.commands.run(command, { background: true })
   }
 
-  // Gets the preview url
   async getPreviewURL(port: number): Promise<string> {
     return `https://${this.sandbox.getHost(port)}`
   }
 
-  // Checks if sandbox already created for task
-  async hasSandboxForTask(taskID: string): Promise<string | null> {
+  async getSandbox(taskID: string): Promise<SandboxInfo | null> {
     const paginator = E2BSandbox.list({
       limit: 1,
       query: {
@@ -68,6 +58,30 @@ export class Sandbox {
     }
 
     const sandbox = sandboxes[0]!
-    return sandbox.sandboxId
+    return sandbox
+  }
+
+  async buildTemplate(repoURL: string): Promise<string> {
+    const parsedURL = new URL(repoURL)
+    const [, repoOwner, repoName] = parsedURL.pathname.split("/")
+
+    const templateName = `${repoName}-sandbox`
+
+    const hasTemplate = await Template.exists(templateName)
+    if (hasTemplate) {
+      console.log("skipping building template")
+      return templateName
+    }
+
+    const imageName = `${repoOwner}/${repoName}-sandbox:latest`
+
+    const template = Template()
+      .fromImage(imageName)
+      .setStartCmd(AGENT_START_CMD, waitForPort(AGENT_PORT))
+
+    console.log("building template from image:", imageName)
+    await Template.build(template, templateName)
+
+    return imageName
   }
 }
