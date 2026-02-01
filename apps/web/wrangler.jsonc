@@ -16,4 +16,9 @@
       "remote": true,
     },
   ],
+
+  "vars": {
+    // change this value for local development
+    "VITE_WEB_URL": "https://iron-giant.downpogo.workers.dev",
+  },
 }
