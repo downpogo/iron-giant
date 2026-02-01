@@ -9,10 +9,6 @@ import { contract } from "@/lib/rpc/contract/contract"
 const link = new OpenAPILink(contract, {
   url: `${webEnv.VITE_WEB_URL}/api`,
 
-  fetch: (request, init) => {
-    return globalThis.fetch(request, init)
-  },
-
   interceptors: [
     onError((error) => {
       console.error("openAPI link error:", error)
