@@ -1,9 +1,8 @@
-import { Link, createFileRoute } from "@tanstack/react-router"
+import { Link, Outlet, createFileRoute } from "@tanstack/react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { RepoList } from "."
 import { orpc } from "@/lib/rpc/client"
 
-export const Route = createFileRoute("/repo/$repoID/task/")({
+export const Route = createFileRoute("/_repoLayout/repo/$repoID/task")({
   loader: ({ context, params }) => {
     const queryOpts = orpc.task.list.queryOptions({
       input: {
@@ -19,10 +18,6 @@ export const Route = createFileRoute("/repo/$repoID/task/")({
 function RouteComponent() {
   const { repoID } = Route.useParams()
 
-  const { data: repositories } = useSuspenseQuery(
-    orpc.repository.list.queryOptions(),
-  )
-
   const queryOpts = orpc.task.list.queryOptions({
     input: {
       repositoryID: repoID,
@@ -33,12 +28,12 @@ function RouteComponent() {
   )
 
   return (
-    <div className="grid grid-cols-[20%_30%_1fr] h-dvh">
-      <RepoList repositories={repositories} />
-
+    <div className="grid grid-cols-[30%_1fr] h-full">
       <div className="border-r p-4">
         <h1 className="text-xl font-bold mb-5">
-          <Link to="/">Tasks</Link>
+          <Link to="/repo/$repoID/task" params={{ repoID }}>
+            Tasks
+          </Link>
         </h1>
 
         <div className="flex flex-col gap-3">
@@ -56,9 +51,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center">
-        <p className="text-muted-foreground">Select any task</p>
-      </div>
+      <Outlet />
     </div>
   )
 }

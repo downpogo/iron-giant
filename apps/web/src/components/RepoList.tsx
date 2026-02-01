@@ -1,32 +1,5 @@
-import { Link, createFileRoute } from "@tanstack/react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import type { Repository } from "@iron-giant/core/domain"
-import { orpc } from "@/lib/rpc/client"
-
-export const Route = createFileRoute("/")({
-  loader: ({ context }) => {
-    return context.queryClient.ensureQueryData(
-      orpc.repository.list.queryOptions(),
-    )
-  },
-
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  const { data: repositories } = useSuspenseQuery(
-    orpc.repository.list.queryOptions(),
-  )
-
-  return (
-    <div className="grid grid-cols-[20%_1fr] h-dvh">
-      <RepoList repositories={repositories} />
-      <div className="flex items-center justify-center">
-        <p className="text-muted-foreground">Select repository to view tasks</p>
-      </div>
-    </div>
-  )
-}
 
 type RepoListProps = {
   repositories: Array<Repository>
