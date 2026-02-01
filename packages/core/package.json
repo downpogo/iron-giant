@@ -19,6 +19,12 @@
     },
     "./input": {
       "default": "./src/input.ts"
+    },
+    "./env/server": {
+      "default": "./src/env/server.ts"
+    },
+    "./env/web": {
+      "default": "./src/env/web.ts"
     }
   },
   "scripts": {

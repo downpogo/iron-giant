@@ -1,12 +1,13 @@
 import { createORPCClient, onError } from "@orpc/client"
 import { createTanstackQueryUtils } from "@orpc/tanstack-query"
 import { OpenAPILink } from "@orpc/openapi-client/fetch"
+import { webEnv } from "@iron-giant/core/env/web"
 import type { RouterClient } from "@orpc/server"
 import type { Router } from "@/lib/rpc/router"
 import { contract } from "@/lib/rpc/contract/contract"
 
 const link = new OpenAPILink(contract, {
-  url: "http://localhost:3000/api",
+  url: `${webEnv.VITE_WEB_URL}/api`,
 
   fetch: (request, init) => {
     return globalThis.fetch(request, init)
