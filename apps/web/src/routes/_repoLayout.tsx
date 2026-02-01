@@ -31,7 +31,7 @@ function RouteComponent() {
               to="/repo/$repoID/task"
               params={{ repoID: repo.id }}
               key={repo.id}
-              className="flex flex-col gap-1 border rounded-md px-4 py-2 data-[status=active]:bg-primary/10 data-[status=active]:ring-ring data-[status=active]:ring-1"
+              className="flex flex-col gap-1 border rounded-md px-4 py-2 data-[status=active]:bg-primary/10"
             >
               <span>{repo.name}</span>
               <span className="text-muted-foreground truncate">{repo.url}</span>
