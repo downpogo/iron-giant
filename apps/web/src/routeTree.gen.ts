@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
+import { Route as RepoRepoIDTaskIndexRouteImport } from './routes/repo.$repoID.task.index'
+import { Route as RepoRepoIDTaskTaskIDRouteImport } from './routes/repo.$repoID.task.$taskID'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +24,58 @@ const ApiSplatRoute = ApiSplatRouteImport.update({
   path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepoRepoIDTaskIndexRoute = RepoRepoIDTaskIndexRouteImport.update({
+  id: '/repo/$repoID/task/',
+  path: '/repo/$repoID/task/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepoRepoIDTaskTaskIDRoute = RepoRepoIDTaskTaskIDRouteImport.update({
+  id: '/repo/$repoID/task/$taskID',
+  path: '/repo/$repoID/task/$taskID',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/repo/$repoID/task/$taskID': typeof RepoRepoIDTaskTaskIDRoute
+  '/repo/$repoID/task/': typeof RepoRepoIDTaskIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/repo/$repoID/task/$taskID': typeof RepoRepoIDTaskTaskIDRoute
+  '/repo/$repoID/task': typeof RepoRepoIDTaskIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/repo/$repoID/task/$taskID': typeof RepoRepoIDTaskTaskIDRoute
+  '/repo/$repoID/task/': typeof RepoRepoIDTaskIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/$'
+  fullPaths:
+    | '/'
+    | '/api/$'
+    | '/repo/$repoID/task/$taskID'
+    | '/repo/$repoID/task/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/$'
-  id: '__root__' | '/' | '/api/$'
+  to: '/' | '/api/$' | '/repo/$repoID/task/$taskID' | '/repo/$repoID/task'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/$'
+    | '/repo/$repoID/task/$taskID'
+    | '/repo/$repoID/task/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiSplatRoute: typeof ApiSplatRoute
+  RepoRepoIDTaskTaskIDRoute: typeof RepoRepoIDTaskTaskIDRoute
+  RepoRepoIDTaskIndexRoute: typeof RepoRepoIDTaskIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +94,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repo/$repoID/task/': {
+      id: '/repo/$repoID/task/'
+      path: '/repo/$repoID/task'
+      fullPath: '/repo/$repoID/task/'
+      preLoaderRoute: typeof RepoRepoIDTaskIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repo/$repoID/task/$taskID': {
+      id: '/repo/$repoID/task/$taskID'
+      path: '/repo/$repoID/task/$taskID'
+      fullPath: '/repo/$repoID/task/$taskID'
+      preLoaderRoute: typeof RepoRepoIDTaskTaskIDRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiSplatRoute: ApiSplatRoute,
+  RepoRepoIDTaskTaskIDRoute: RepoRepoIDTaskTaskIDRoute,
+  RepoRepoIDTaskIndexRoute: RepoRepoIDTaskIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
