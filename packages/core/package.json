@@ -34,10 +34,11 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@daytonaio/sdk": "^0.136.0",
+    "@e2b/code-interpreter": "^2.3.3",
     "@t3-oss/env-core": "^0.13.10",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.45.1",
+    "e2b": "^2.12.0",
     "ulid": "^3.0.2",
     "zod": "catalog:"
   },

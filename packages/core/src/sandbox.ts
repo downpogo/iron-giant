@@ -1,70 +1,73 @@
-import { Image, Daytona, Sandbox as DaytonaSandbox } from "@daytonaio/sdk"
+import { Template } from "e2b"
+import { Sandbox as E2BSandbox } from "@e2b/code-interpreter"
 
 export class Sandbox {
-  private daytona: Daytona
-  private sandbox!: DaytonaSandbox
-  private sessionID!: string
+  private sandbox!: E2BSandbox
 
-  constructor() {
-    this.daytona = new Daytona()
-  }
-
-  // Creates the sanbox
-  async create(): Promise<void> {
-    const snapshot = await this.getOrCreateSnapshot()
-
-    this.sandbox = await this.daytona.create({
-      public: true,
-      snapshot,
-    })
-
-    this.sessionID = crypto.randomUUID()
-    console.log("creating sandbox session")
-    await this.sandbox.process.createSession(this.sessionID)
-
-    console.log("sandbox created")
-  }
-
-  // Gets the snapshot or creates if doesn't exists
-  async getOrCreateSnapshot(): Promise<string> {
-    // TODO: Name should be derived based on the github URL
-    const snapshotName = "memento-sandbox"
-
-    const hasSnapshot = await this.daytona.snapshot.get(snapshotName).then(
-      () => true,
-      () => false,
-    )
-
-    if (!hasSnapshot) {
-      console.log("creating snaphot...")
-      await this.daytona.snapshot.create({
-        name: snapshotName,
-        // TODO: Figure out a way to get the docker registry username
-        image: Image.base(`downpogo/${snapshotName}`),
-      })
-    } else {
-      console.log("using existing snaphot...")
+  // Creates sandbox for the the task
+  async createFromTask(taskID: string, repoURL: string, repoBranch: string) {
+    // Connect to sandbox if already exists
+    const sandboxBoxID = await this.hasSandboxForTask(taskID)
+    if (sandboxBoxID) {
+      console.log("connecting to existing sandbox")
+      this.sandbox = await E2BSandbox.connect(sandboxBoxID)
+      return
     }
 
-    return snapshotName
+    // Get base image using repo url
+    const parsedURL = new URL(repoURL)
+    const repoName = parsedURL.pathname.split("/")[2]
+
+    // Build the template using the base image
+    const imageName = `${repoName}-sandbox`
+    const template = Template().fromImage(imageName)
+
+    console.log("building template from image:", imageName)
+    await Template.build(template, imageName)
+
+    // Create the sandbox
+    console.log("creating sandbox")
+    this.sandbox = await E2BSandbox.create(imageName, {
+      allowInternetAccess: true,
+      metadata: { taskID },
+    })
+
+    // Clone the repo
+    console.log("cloning repo")
+    await this.sandbox.commands.run(`git clone -b ${repoBranch} ${repoURL}`)
   }
 
   // Deletes the sandbox
   delete(): Promise<void> {
-    return this.sandbox.delete()
+    return this.sandbox.kill()
   }
 
   // Executes the given command asynchronously
   async executeCommandAsync(command: string): Promise<void> {
-    await this.sandbox.process.executeSessionCommand(this.sessionID, {
-      command,
-      runAsync: true,
-    })
+    await this.sandbox.commands.run(command, { background: true })
   }
 
   // Gets the preview url
   async getPreviewURL(port: number): Promise<string> {
-    const link = await this.sandbox.getPreviewLink(port)
-    return link.url
+    return `https://${this.sandbox.getHost(port)}`
+  }
+
+  // Checks if sandbox already created for task
+  async hasSandboxForTask(taskID: string): Promise<string | null> {
+    const paginator = E2BSandbox.list({
+      limit: 1,
+      query: {
+        state: ["running", "paused"],
+        metadata: { taskID },
+      },
+    })
+
+    const sandboxes = await paginator.nextItems()
+    if (!sandboxes.length) {
+      return null
+    }
+
+    const sandbox = sandboxes[0]!
+    return sandbox.sandboxId
   }
 }
