@@ -1,9 +1,14 @@
+import type { CodingAgentMessage } from "./domain"
+import type { EventMessagePartUpdated } from "@opencode-ai/sdk/v2"
+
 export type AppEvent =
   | creatingStandboxEvent
   | cloningRepoEvent
   | buildingTemplateEvent
   | creatingSessionEvent
   | errorEvent
+  | codingAgentMessageEvent
+  | messagePartUpdatedEvent
 
 type creatingStandboxEvent = {
   name: "CREATING_SANDBOX"
@@ -32,6 +37,20 @@ type errorEvent = {
   name: "ERROR"
   data: {
     message: string
+  }
+}
+
+type codingAgentMessageEvent = {
+  name: "CODING_AGENT_MESSAGE"
+  data: {
+    message: CodingAgentMessage
+  }
+}
+
+type messagePartUpdatedEvent = {
+  name: "MESSAGE_PART_UPDATED_EVENT"
+  data: {
+    event: EventMessagePartUpdated
   }
 }
 

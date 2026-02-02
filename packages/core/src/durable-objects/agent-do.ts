@@ -5,6 +5,8 @@ import { ulid } from "ulid"
 import { Sandbox } from "../sandbox.js"
 import { CodingAgent } from "../coding-agent"
 import type { AppEvent } from "../event"
+import type { CodingAgentMessage } from "../domain"
+import type { EventMessagePartUpdated } from "@opencode-ai/sdk/v2"
 
 export class AgentDO extends DurableObject {
   private task!: TaskDTO
@@ -15,11 +17,14 @@ export class AgentDO extends DurableObject {
   private sandbox: Sandbox | null = null
   private agent: CodingAgent
 
+  private messages: Map<string, CodingAgentMessage>
+
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env)
 
     this.connections = new Map()
     this.agent = new CodingAgent()
+    this.messages = new Map<string, CodingAgentMessage>()
 
     this.ctx.getWebSockets().forEach((ws) => {
       const attachment = ws.deserializeAttachment()
@@ -110,7 +115,9 @@ export class AgentDO extends DurableObject {
 
     const agentURL = await sandbox.getAgentURL()
     await this.agent.getOrCreateSession(this.task, agentURL, (event) =>
-      this.broadcast(event),
+      event.name === "MESSAGE_PART_UPDATED_EVENT"
+        ? this.messagePartUpdated(event.data.event)
+        : this.broadcast(event),
     )
 
     this.sandbox = sandbox
@@ -119,6 +126,72 @@ export class AgentDO extends DurableObject {
   webSocketClose(ws: WebSocket, code: number, reason: string): void {
     ws.close(code, reason)
     this.connections.delete(ws)
+  }
+
+  // coding message helpers for doing transformation
+  async messagePartUpdated(event: EventMessagePartUpdated) {
+    const { part } = event.properties
+    const messageID = part.messageID
+
+    let codingAgentMessage = this.messages.get(messageID)
+
+    if (!codingAgentMessage) {
+      const newMessage = {
+        id: messageID,
+        parts: [],
+      }
+      this.messages.set(messageID, newMessage)
+      codingAgentMessage = newMessage
+    }
+
+    switch (part.type) {
+      case "step-start": {
+        codingAgentMessage.parts.push({ name: "step-start" })
+        break
+      }
+      case "reasoning": {
+        this.upsertPart(codingAgentMessage, "reasoning", part.text)
+        break
+      }
+      case "text": {
+        this.upsertPart(codingAgentMessage, "text", part.text)
+        break
+      }
+      case "step-finish": {
+        codingAgentMessage.parts.push({ name: "step-finish" })
+        break
+      }
+    }
+
+    this.messages.set(messageID, codingAgentMessage!)
+
+    this.broadcast({
+      name: "CODING_AGENT_MESSAGE",
+      data: {
+        message: codingAgentMessage,
+      },
+    })
+  }
+
+  private upsertPart(
+    message: CodingAgentMessage,
+    name: "text" | "reasoning",
+    text: string,
+  ): CodingAgentMessage {
+    const part = {
+      name,
+      data: {
+        text,
+      },
+    }
+
+    const index = message.parts.findIndex((p) => p.name === name)
+    if (index === -1) {
+      message.parts.push(part)
+    }
+
+    message.parts[index] = part
+    return message
   }
 }
 

@@ -15,6 +15,7 @@ export class CodingAgent {
   ): Promise<string> {
     this.oc = createOpencodeClient({ baseUrl: url })
     this.onEvent = onEvent ? onEvent : () => {}
+    void this.subscribe()
 
     let session = await this.getSession(task.id)
     if (!session) {
@@ -42,8 +43,6 @@ export class CodingAgent {
       console.error("failed to send message:", result.error.data)
       return
     }
-
-    console.log("coding agent message reply:", result.data)
   }
 
   private async getSession(taskID: string): Promise<Session | undefined> {
@@ -61,14 +60,29 @@ export class CodingAgent {
     const [, , repoName] = new URL(task.repositoryURL).pathname.split("/")
     const directory = `/home/user/${repoName}`
 
-    console.log("coding agent directory:", directory)
-
-    const result = await this.oc.session.create({ title: task.id })
+    const result = await this.oc.session.create({ title: task.id, directory })
     if (result.error) {
       console.error("failed to create session:", result.error)
       throw new Error("Failed to create session")
     }
 
     return result.data
+  }
+
+  private async subscribe() {
+    const events = await this.oc.event.subscribe()
+    for await (const event of events.stream) {
+      if (
+        event.type === "message.part.updated" &&
+        event.properties.part.sessionID === this.sessionID
+      ) {
+        this.onEvent({
+          name: "MESSAGE_PART_UPDATED_EVENT",
+          data: {
+            event,
+          },
+        })
+      }
+    }
   }
 }
