@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { env } from "cloudflare:workers"
 import { getTask } from "@iron-giant/core/task"
-import { getTaskDO } from "@iron-giant/core/durable-objects/agent-do"
+import { getTaskDO } from "@iron-giant/core/do/agent-do"
 
 export const Route = createFileRoute(
   "/api/repositories/$repositoryID/tasks/$taskID/connect",
