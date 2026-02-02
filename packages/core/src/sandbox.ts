@@ -5,6 +5,7 @@ import {
   type SandboxInfo,
 } from "e2b"
 import { Sandbox as E2BSandbox } from "@e2b/code-interpreter"
+import type { TaskDTO } from "./dto"
 
 const AGENT_PORT = 4096
 
@@ -13,28 +14,27 @@ const AGENT_START_CMD = `curl -fsSL https://opencode.ai/install | bash && export
 export class Sandbox {
   private sandbox!: E2BSandbox
 
-  async create(taskID: string, repoURL: string, repoBranch: string) {
-    const sb = await this.getSandbox(taskID)
+  async getOrCreate(task: TaskDTO): Promise<void> {
+    const sb = await this.getSandbox(task.id)
     if (sb) {
       console.log("connecting to existing sandbox")
       this.sandbox = await E2BSandbox.connect(sb.sandboxId)
       return
     }
 
-    const templateName = await this.buildTemplate(repoURL)
+    const templateName = await this.buildTemplate(task.repositoryURL)
 
     console.log("creating sandbox")
     this.sandbox = await E2BSandbox.create(templateName, {
       allowInternetAccess: true,
-      metadata: { taskID },
+      metadata: { taskID: task.id },
     })
     console.log("sandbox created:", this.sandbox.sandboxId)
 
-    console.log("cloning repo:", repoURL)
-    await this.sandbox.commands.run(`git clone -b ${repoBranch} ${repoURL}`)
-
-    const url = await this.getPreviewURL(AGENT_PORT)
-    console.log("agent running at:", url)
+    console.log("cloning repo:", task.repositoryURL)
+    await this.sandbox.commands.run(
+      `git clone -b ${task.repositoryBranch} ${task.repositoryURL}`,
+    )
   }
 
   delete(): Promise<void> {
@@ -91,5 +91,10 @@ export class Sandbox {
     })
 
     return templateName
+  }
+
+  async getAgentURL() {
+    const url = await this.getPreviewURL(AGENT_PORT)
+    return url
   }
 }

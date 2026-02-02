@@ -180,6 +180,9 @@ importers:
       "@e2b/code-interpreter":
         specifier: ^2.3.3
         version: 2.3.3
+      "@opencode-ai/sdk":
+        specifier: ^1.1.48
+        version: 1.1.48
       "@t3-oss/env-core":
         specifier: ^0.13.10
         version: 0.13.10(typescript@5.9.3)(zod@4.3.6)
@@ -1920,6 +1923,12 @@ packages:
         integrity: sha512-hAX0pT/73190NLqBPPWSdBVGtbY6VOhWYK3qqHqtXQ1gK7kS2yz4+ivsN07hpJ6I3aeMtKP6J6npsEKOAzuTLA==,
       }
     engines: { node: ">=20.0" }
+
+  "@opencode-ai/sdk@1.1.48":
+    resolution:
+      {
+        integrity: sha512-j5/79X45fUPWVD2Ffm/qvwLclDCdPeV+TYMDrm9to0p4pmzhmeKevCsyiRdLg0o0HE3AFRUnOo2rdO9NetN79A==,
+      }
 
   "@orpc/client@1.13.4":
     resolution:
@@ -6510,6 +6519,8 @@ snapshots:
       "@oozcitak/util": 10.0.0
 
   "@oozcitak/util@10.0.0": {}
+
+  "@opencode-ai/sdk@1.1.48": {}
 
   "@orpc/client@1.13.4":
     dependencies:

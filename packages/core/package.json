@@ -25,6 +25,9 @@
     },
     "./env/web": {
       "default": "./src/env/web.ts"
+    },
+    "./do/agent-do": {
+      "default": "./src/durable-objects/agent-do.ts"
     }
   },
   "scripts": {
@@ -35,6 +38,7 @@
   },
   "dependencies": {
     "@e2b/code-interpreter": "^2.3.3",
+    "@opencode-ai/sdk": "^1.1.48",
     "@t3-oss/env-core": "^0.13.10",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.45.1",

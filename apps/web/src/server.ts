@@ -4,6 +4,8 @@ import { createDB } from "@iron-giant/core/db"
 import handler, { createServerEntry } from "@tanstack/react-start/server-entry"
 import { env } from "cloudflare:workers"
 
+export { AgentDO } from "@iron-giant/core/do/agent-do"
+
 export default createServerEntry({
   fetch(request) {
     const db = createDB(env.DB)

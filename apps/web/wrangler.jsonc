@@ -1,10 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-
   "name": "iron-giant",
 
   "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
 
   "main": "src/server.ts",
 
@@ -13,11 +15,29 @@
       "binding": "DB",
       "database_name": "iron-giant-db",
       "database_id": "e8e98a53-3b14-49d0-922d-74bc059eec18",
-      "remote": true,
-    },
+      "remote": true
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "AGENT_DO",
+        "class_name": "AgentDO"
+      }
+    ]
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "AgentDO"
+      ]
+    }
   ],
 
   "vars": {
-    "VITE_WEB_URL": "https://iron-giant.downpogo.workers.dev",
-  },
+    "VITE_WEB_URL": "https://iron-giant.downpogo.workers.dev"
+  }
 }
