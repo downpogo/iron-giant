@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { orpc } from "@/lib/rpc/client"
 import { Socket } from "@/lib/socket"
+import { MessageList } from "@/components/pages/task/MessageList"
 
 export const Route = createFileRoute("/_repoLayout/repo/$repoID/task/$taskID")({
   loader: ({ context, params }) => {
@@ -56,10 +57,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-hidden">
       <p className="p-4 font-bold py-3 border-b border-border">{task.name}</p>
 
-      <div className="flex-1"></div>
+      <MessageList />
 
       <div className="p-4">
         <Textarea

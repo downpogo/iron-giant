@@ -14,8 +14,8 @@ export class CodingAgent {
     onEvent?: OnEvent,
   ): Promise<string> {
     this.oc = createOpencodeClient({ baseUrl: url })
+    this.subscribe()
     this.onEvent = onEvent ? onEvent : () => {}
-    void this.subscribe()
 
     let session = await this.getSession(task.id)
     if (!session) {
@@ -40,7 +40,7 @@ export class CodingAgent {
     })
 
     if (result.error) {
-      console.error("failed to send message:", result.error.data)
+      console.error("failed to send message:", result.error)
       return
     }
   }
@@ -57,15 +57,11 @@ export class CodingAgent {
   }
 
   private async createSession(task: TaskDTO): Promise<Session> {
-    const [, , repoName] = new URL(task.repositoryURL).pathname.split("/")
-    const directory = `/home/user/${repoName}`
-
-    const result = await this.oc.session.create({ title: task.id, directory })
+    const result = await this.oc.session.create({ title: task.id })
     if (result.error) {
       console.error("failed to create session:", result.error)
       throw new Error("Failed to create session")
     }
-
     return result.data
   }
 

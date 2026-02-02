@@ -28,7 +28,7 @@ function RouteComponent() {
   )
 
   return (
-    <div className="grid grid-cols-[30%_1fr] h-full">
+    <div className="grid grid-cols-[30%_1fr] h-full overflow-hidden">
       <div className="border-r p-4">
         <h1 className="text-xl font-bold mb-5">
           <Link to="/repo/$repoID/task" params={{ repoID }}>
