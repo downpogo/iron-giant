@@ -25,14 +25,13 @@ export type CodingAgentMessage = {
 }
 
 type CodingAgentMessagePart =
-  | CodingAgentMessageStepStart
   | CodingAgentMessageTextPart
   | CodingAgentMessageReasoningPart
-  | CodingAgentMessageStepFinish
 
 type CodingAgentMessageTextPart = {
   name: "text"
   data: {
+    id: string
     text: string
   }
 }
@@ -40,14 +39,7 @@ type CodingAgentMessageTextPart = {
 type CodingAgentMessageReasoningPart = {
   name: "reasoning"
   data: {
+    id: string
     text: string
   }
-}
-
-type CodingAgentMessageStepStart = {
-  name: "step-start"
-}
-
-type CodingAgentMessageStepFinish = {
-  name: "step-finish"
 }

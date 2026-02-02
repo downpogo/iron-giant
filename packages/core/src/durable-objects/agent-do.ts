@@ -7,6 +7,7 @@ import { CodingAgent } from "../coding-agent"
 import type { AppEvent } from "../event"
 import type { CodingAgentMessage } from "../domain"
 import type { EventMessagePartUpdated } from "@opencode-ai/sdk/v2"
+import type { ReasoningPart, TextPart } from "@opencode-ai/sdk"
 
 export class AgentDO extends DurableObject {
   private task!: TaskDTO
@@ -145,20 +146,9 @@ export class AgentDO extends DurableObject {
     }
 
     switch (part.type) {
-      case "step-start": {
-        codingAgentMessage.parts.push({ name: "step-start" })
-        break
-      }
+      case "text":
       case "reasoning": {
-        this.upsertPart(codingAgentMessage, "reasoning", part.text)
-        break
-      }
-      case "text": {
-        this.upsertPart(codingAgentMessage, "text", part.text)
-        break
-      }
-      case "step-finish": {
-        codingAgentMessage.parts.push({ name: "step-finish" })
+        this.upsertPart(codingAgentMessage, part)
         break
       }
     }
@@ -175,17 +165,17 @@ export class AgentDO extends DurableObject {
 
   private upsertPart(
     message: CodingAgentMessage,
-    name: "text" | "reasoning",
-    text: string,
+    ocPart: TextPart | ReasoningPart,
   ): CodingAgentMessage {
     const part = {
-      name,
+      name: ocPart.type,
       data: {
-        text,
+        id: ocPart.id,
+        text: ocPart.text,
       },
     }
 
-    const index = message.parts.findIndex((p) => p.name === name)
+    const index = message.parts.findIndex((p) => p.data.id === ocPart.id)
     if (index === -1) {
       message.parts.push(part)
     }

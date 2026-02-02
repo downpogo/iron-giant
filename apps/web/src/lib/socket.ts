@@ -1,4 +1,5 @@
 import { WebSocket } from "partysocket"
+import { useTaskStore } from "./stores/task"
 import type { AppEvent } from "node_modules/@iron-giant/core/src/event"
 import type { Command } from "@iron-giant/core/command"
 
@@ -30,6 +31,10 @@ export class Socket {
       try {
         const appEvent = JSON.parse(event.data) as AppEvent
         console.log("app event:", appEvent)
+
+        if (appEvent.name === "CODING_AGENT_MESSAGE") {
+          useTaskStore.getState().addMessage(appEvent.data.message)
+        }
       } catch (err) {
         console.error("ws: failed to parse ws message:", err)
       }
