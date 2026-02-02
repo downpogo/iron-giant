@@ -28,6 +28,9 @@
     },
     "./do/agent-do": {
       "default": "./src/durable-objects/agent-do.ts"
+    },
+    "./command": {
+      "default": "./src/command.ts"
     }
   },
   "scripts": {

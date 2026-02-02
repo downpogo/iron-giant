@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers"
+import type { Command } from "../command"
 import type { TaskDTO } from "../dto"
 import { ulid } from "ulid"
 import { Sandbox } from "../sandbox.js"
@@ -66,22 +67,67 @@ export class AgentDO extends DurableObject {
   }
 
   async webSocketMessage(
-    _ws: WebSocket,
+    ws: WebSocket,
     message: string | ArrayBuffer,
   ): Promise<void> {
-    await this.setupSandboxAndAgent()
-    this.agent.sendMessage(message.toString())
+    try {
+      await this.setupSandboxAndAgent()
+
+      const payload =
+        typeof message === "string"
+          ? message
+          : new TextDecoder().decode(message)
+
+      const command = JSON.parse(payload) as Command
+      let isValidCommand = false
+
+      switch (command.name) {
+        case "SEND_MESSAGE": {
+          isValidCommand = true
+          await this.agent.sendMessage(command.data.message)
+          break
+        }
+        default: {
+          throw new Error(`Unknown command: ${command.name}`)
+        }
+      }
+
+      if (isValidCommand) {
+        this.sendAck(ws, command.name)
+      }
+    } catch (err) {
+      console.error("failed to handle ws message", err)
+      this.sendErrorEvent(ws, err as Error)
+    }
+  }
+
+  private sendAck(ws: WebSocket, commandName: Command["name"]): void {
+    const command: Command = {
+      name: "ACK",
+      data: { command: commandName },
+    }
+    ws.send(JSON.stringify(command))
+  }
+
+  private sendErrorEvent(ws: WebSocket, err: Error): void {
+    const event = {
+      name: "ERROR",
+      data: {
+        message: err,
+      },
+    }
+    ws.send(JSON.stringify(event))
   }
 
   async setupSandboxAndAgent(): Promise<void> {
-    if (!this.sandbox) {
+    if (this.sandbox) {
       return
     }
 
     const sandbox = new Sandbox()
     await sandbox.getOrCreate(this.task)
 
-    const agentURL = await this.sandbox.getAgentURL()
+    const agentURL = await sandbox.getAgentURL()
     const sessionID = await this.agent.getOrCreateSession(
       this.agentSessionID,
       agentURL,

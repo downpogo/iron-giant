@@ -97,6 +97,9 @@ importers:
       lucide-react:
         specifier: ^0.561.0
         version: 0.561.0(react@19.2.4)
+      partysocket:
+        specifier: ^1.1.11
+        version: 1.1.11
       react:
         specifier: ^19.2.0
         version: 19.2.4
@@ -3949,6 +3952,12 @@ packages:
       }
     engines: { node: ">=0.10.0" }
 
+  event-target-polyfill@0.0.4:
+    resolution:
+      {
+        integrity: sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==,
+      }
+
   eventemitter3@5.0.4:
     resolution:
       {
@@ -4743,6 +4752,12 @@ packages:
     resolution:
       {
         integrity: sha512-9m4m5GSgXjL4AjumKzq1Fgfp3Z8rsvjRNbnkVwfu2ImRqE5D0LnY2QfDen18FSY9C573YU5XxSapdHZTZ2WolA==,
+      }
+
+  partysocket@1.1.11:
+    resolution:
+      {
+        integrity: sha512-P0EtOQiAwvLriqLgdThcSaREfz3bP77LkLSdmXq680BosPKvGSoGTh/d0g3S+UNmaqcw89Ad7JXHHKyRx3xU9Q==,
       }
 
   path-exists@4.0.0:
@@ -7939,6 +7954,8 @@ snapshots:
 
   esutils@2.0.3: {}
 
+  event-target-polyfill@0.0.4: {}
+
   eventemitter3@5.0.4: {}
 
   exsolve@1.0.8: {}
@@ -8367,6 +8384,10 @@ snapshots:
   parse5@8.0.0:
     dependencies:
       entities: 6.0.1
+
+  partysocket@1.1.11:
+    dependencies:
+      event-target-polyfill: 0.0.4
 
   path-exists@4.0.0: {}
 
