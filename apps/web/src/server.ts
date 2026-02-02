@@ -12,6 +12,7 @@ export default createServerEntry({
 
     const context = {
       db,
+      env,
     }
 
     return withContext(context, () => handler.fetch(request))

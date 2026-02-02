@@ -98,3 +98,7 @@ export class AgentDO extends DurableObject {
     this.connections.delete(ws)
   }
 }
+
+export function getTaskDO(env: Env, taskID: string) {
+  return env.AGENT_DO.getByName(taskID)
+}

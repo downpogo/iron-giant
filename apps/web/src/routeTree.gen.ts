@@ -15,6 +15,7 @@ import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as RepoLayoutRepoRepoIDTaskRouteImport } from './routes/_repoLayout.repo.$repoID.task'
 import { Route as RepoLayoutRepoRepoIDTaskIndexRouteImport } from './routes/_repoLayout.repo.$repoID.task.index'
 import { Route as RepoLayoutRepoRepoIDTaskTaskIDRouteImport } from './routes/_repoLayout.repo.$repoID.task.$taskID'
+import { Route as ApiRepositoriesRepositoryIDTasksTaskIDConnectRouteImport } from './routes/api.repositories.$repositoryID.tasks.$taskID.connect'
 
 const RepoLayoutRoute = RepoLayoutRouteImport.update({
   id: '/_repoLayout',
@@ -48,6 +49,12 @@ const RepoLayoutRepoRepoIDTaskTaskIDRoute =
     path: '/$taskID',
     getParentRoute: () => RepoLayoutRepoRepoIDTaskRoute,
   } as any)
+const ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute =
+  ApiRepositoriesRepositoryIDTasksTaskIDConnectRouteImport.update({
+    id: '/api/repositories/$repositoryID/tasks/$taskID/connect',
+    path: '/api/repositories/$repositoryID/tasks/$taskID/connect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof RepoLayoutIndexRoute
@@ -55,12 +62,14 @@ export interface FileRoutesByFullPath {
   '/repo/$repoID/task': typeof RepoLayoutRepoRepoIDTaskRouteWithChildren
   '/repo/$repoID/task/$taskID': typeof RepoLayoutRepoRepoIDTaskTaskIDRoute
   '/repo/$repoID/task/': typeof RepoLayoutRepoRepoIDTaskIndexRoute
+  '/api/repositories/$repositoryID/tasks/$taskID/connect': typeof ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute
 }
 export interface FileRoutesByTo {
   '/api/$': typeof ApiSplatRoute
   '/': typeof RepoLayoutIndexRoute
   '/repo/$repoID/task/$taskID': typeof RepoLayoutRepoRepoIDTaskTaskIDRoute
   '/repo/$repoID/task': typeof RepoLayoutRepoRepoIDTaskIndexRoute
+  '/api/repositories/$repositoryID/tasks/$taskID/connect': typeof ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,6 +79,7 @@ export interface FileRoutesById {
   '/_repoLayout/repo/$repoID/task': typeof RepoLayoutRepoRepoIDTaskRouteWithChildren
   '/_repoLayout/repo/$repoID/task/$taskID': typeof RepoLayoutRepoRepoIDTaskTaskIDRoute
   '/_repoLayout/repo/$repoID/task/': typeof RepoLayoutRepoRepoIDTaskIndexRoute
+  '/api/repositories/$repositoryID/tasks/$taskID/connect': typeof ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -79,8 +89,14 @@ export interface FileRouteTypes {
     | '/repo/$repoID/task'
     | '/repo/$repoID/task/$taskID'
     | '/repo/$repoID/task/'
+    | '/api/repositories/$repositoryID/tasks/$taskID/connect'
   fileRoutesByTo: FileRoutesByTo
-  to: '/api/$' | '/' | '/repo/$repoID/task/$taskID' | '/repo/$repoID/task'
+  to:
+    | '/api/$'
+    | '/'
+    | '/repo/$repoID/task/$taskID'
+    | '/repo/$repoID/task'
+    | '/api/repositories/$repositoryID/tasks/$taskID/connect'
   id:
     | '__root__'
     | '/_repoLayout'
@@ -89,11 +105,13 @@ export interface FileRouteTypes {
     | '/_repoLayout/repo/$repoID/task'
     | '/_repoLayout/repo/$repoID/task/$taskID'
     | '/_repoLayout/repo/$repoID/task/'
+    | '/api/repositories/$repositoryID/tasks/$taskID/connect'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   RepoLayoutRoute: typeof RepoLayoutRouteWithChildren
   ApiSplatRoute: typeof ApiSplatRoute
+  ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute: typeof ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepoLayoutRepoRepoIDTaskTaskIDRouteImport
       parentRoute: typeof RepoLayoutRepoRepoIDTaskRoute
     }
+    '/api/repositories/$repositoryID/tasks/$taskID/connect': {
+      id: '/api/repositories/$repositoryID/tasks/$taskID/connect'
+      path: '/api/repositories/$repositoryID/tasks/$taskID/connect'
+      fullPath: '/api/repositories/$repositoryID/tasks/$taskID/connect'
+      preLoaderRoute: typeof ApiRepositoriesRepositoryIDTasksTaskIDConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -176,6 +201,8 @@ const RepoLayoutRouteWithChildren = RepoLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   RepoLayoutRoute: RepoLayoutRouteWithChildren,
   ApiSplatRoute: ApiSplatRoute,
+  ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute:
+    ApiRepositoriesRepositoryIDTasksTaskIDConnectRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

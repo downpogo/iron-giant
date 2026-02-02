@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from "node:async_hooks"
 
 export type ContextValue = {
   db: ReturnType<typeof drizzle>
+  env: Env
 }
 
 const asyncLocalStorage = new AsyncLocalStorage<ContextValue>()

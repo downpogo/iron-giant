@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 import { ulid } from "ulid"
 import { repositoryTable } from "../db/schema.js"
 import type { CreateRepositoryInput } from "../input.js"
@@ -44,4 +44,24 @@ export async function listRepository(): Promise<Array<Repository>> {
     })
     .from(repositoryTable)
     .orderBy(desc(repositoryTable.updatedAt), desc(repositoryTable.createdAt))
+}
+
+export async function getRepository(id: string): Promise<Repository> {
+  const { db } = getContext()
+
+  const rows = await db
+    .select({
+      id: repositoryTable.id,
+      name: repositoryTable.name,
+      url: repositoryTable.url,
+    })
+    .from(repositoryTable)
+    .where(eq(repositoryTable.id, id))
+
+  const repository = rows[0]
+  if (!repository) {
+    throw new Error("Repository not found")
+  }
+
+  return repository
 }
