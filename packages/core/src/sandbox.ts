@@ -1,8 +1,14 @@
-import { Template, waitForPort, type SandboxInfo } from "e2b"
+import {
+  defaultBuildLogger,
+  Template,
+  waitForPort,
+  type SandboxInfo,
+} from "e2b"
 import { Sandbox as E2BSandbox } from "@e2b/code-interpreter"
 
-const AGENT_PORT = 3000
-const AGENT_START_CMD = `sandbox-agent server --no-token --host 0.0.0.0 --port ${AGENT_PORT}`
+const AGENT_PORT = 4096
+
+const AGENT_START_CMD = `curl -fsSL https://opencode.ai/install | bash && export PATH="$HOME/.opencode/bin:$PATH" && opencode serve --hostname 0.0.0.0 --port ${AGENT_PORT}`
 
 export class Sandbox {
   private sandbox!: E2BSandbox
@@ -80,8 +86,10 @@ export class Sandbox {
       .setStartCmd(AGENT_START_CMD, waitForPort(AGENT_PORT))
 
     console.log("building template from image:", imageName)
-    await Template.build(template, templateName)
+    await Template.build(template, templateName, {
+      onBuildLogs: defaultBuildLogger({ minLevel: "debug" }),
+    })
 
-    return imageName
+    return templateName
   }
 }
