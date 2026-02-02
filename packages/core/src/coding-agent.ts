@@ -1,41 +1,74 @@
-import { OpencodeClient } from "@opencode-ai/sdk/v2"
+import { OpencodeClient, type Session } from "@opencode-ai/sdk/v2"
 import { createOpencodeClient } from "@opencode-ai/sdk/v2"
+import type { TaskDTO } from "./dto"
+import type { OnEvent, AppEvent } from "./event.js"
 
 export class CodingAgent {
   oc!: OpencodeClient
   sessionID!: string
+  onEvent!: (event: AppEvent) => void
 
   async getOrCreateSession(
-    sessionID: string | null,
+    task: TaskDTO,
     url: string,
+    onEvent?: OnEvent,
   ): Promise<string> {
     this.oc = createOpencodeClient({ baseUrl: url })
+    this.onEvent = onEvent ? onEvent : () => {}
 
-    if (!sessionID) {
-      const session = await this.oc.session.create()
-      if (session.error) {
-        throw new Error("failed to create session")
-      }
-
-      this.sessionID = session.data.id
-      return this.sessionID
+    let session = await this.getSession(task.id)
+    if (!session) {
+      this.onEvent({
+        name: "CREATING_SESSION",
+      })
+      session = await this.createSession(task)
     }
 
-    this.sessionID = sessionID
+    this.sessionID = session.id
     return this.sessionID
   }
 
-  // TODO: stream the data to durable object which will stream it to client
   async sendMessage(message: string) {
     const result = await this.oc.session.prompt({
       sessionID: this.sessionID,
+      model: {
+        providerID: "opencode",
+        modelID: "kimi-k2.5-free",
+      },
       parts: [{ type: "text", text: message }],
     })
 
     if (result.error) {
-      console.log("failed to send message:", result.error.data)
+      console.error("failed to send message:", result.error.data)
+      return
     }
 
     console.log("coding agent message reply:", result.data)
+  }
+
+  private async getSession(taskID: string): Promise<Session | undefined> {
+    const result = await this.oc.session.list()
+    if (result.error) {
+      console.error("failed to list sessions:", result.error)
+      throw new Error("Failed to list sessions")
+    }
+
+    const session = result.data?.find((s) => s.title === taskID)
+    return session
+  }
+
+  private async createSession(task: TaskDTO): Promise<Session> {
+    const [, , repoName] = new URL(task.repositoryURL).pathname.split("/")
+    const directory = `/home/user/${repoName}`
+
+    console.log("coding agent directory:", directory)
+
+    const result = await this.oc.session.create({ title: task.id })
+    if (result.error) {
+      console.error("failed to create session:", result.error)
+      throw new Error("Failed to create session")
+    }
+
+    return result.data
   }
 }

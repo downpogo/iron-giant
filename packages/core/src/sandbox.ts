@@ -6,6 +6,7 @@ import {
 } from "e2b"
 import { Sandbox as E2BSandbox } from "@e2b/code-interpreter"
 import type { TaskDTO } from "./dto"
+import type { OnEvent, AppEvent } from "./event.js"
 
 const AGENT_PORT = 4096
 
@@ -13,25 +14,33 @@ const AGENT_START_CMD = `curl -fsSL https://opencode.ai/install | bash && export
 
 export class Sandbox {
   private sandbox!: E2BSandbox
+  onEvent!: (event: AppEvent) => void
 
-  async getOrCreate(task: TaskDTO): Promise<void> {
+  async getOrCreate(task: TaskDTO, onEvent?: OnEvent): Promise<void> {
+    this.onEvent = onEvent ? onEvent : () => {}
+
     const sb = await this.getSandbox(task.id)
     if (sb) {
-      console.log("connecting to existing sandbox")
       this.sandbox = await E2BSandbox.connect(sb.sandboxId)
       return
     }
 
     const templateName = await this.buildTemplate(task.repositoryURL)
 
-    console.log("creating sandbox")
+    this.onEvent({
+      name: "CREATING_SANDBOX",
+    })
     this.sandbox = await E2BSandbox.create(templateName, {
       allowInternetAccess: true,
       metadata: { taskID: task.id },
     })
-    console.log("sandbox created:", this.sandbox.sandboxId)
 
-    console.log("cloning repo:", task.repositoryURL)
+    this.onEvent({
+      name: "CLONING_REPO",
+      data: {
+        url: task.repositoryURL,
+      },
+    })
     await this.sandbox.commands.run(
       `git clone -b ${task.repositoryBranch} ${task.repositoryURL}`,
     )
@@ -75,7 +84,6 @@ export class Sandbox {
 
     const hasTemplate = await Template.exists(templateName)
     if (hasTemplate) {
-      console.log("skipping building template")
       return templateName
     }
 
@@ -85,7 +93,13 @@ export class Sandbox {
       .fromImage(imageName)
       .setStartCmd(AGENT_START_CMD, waitForPort(AGENT_PORT))
 
-    console.log("building template from image:", imageName)
+    this.onEvent({
+      name: "BUILDING_TEMPLATE",
+      data: {
+        imageName,
+        templateName,
+      },
+    })
     await Template.build(template, templateName, {
       onBuildLogs: defaultBuildLogger({ minLevel: "debug" }),
     })

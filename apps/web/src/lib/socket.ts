@@ -1,4 +1,5 @@
 import { WebSocket } from "partysocket"
+import type { AppEvent } from "node_modules/@iron-giant/core/src/event"
 import type { Command } from "@iron-giant/core/command"
 
 type SocketOptions = {
@@ -26,7 +27,12 @@ export class Socket {
     })
 
     this.socket.addEventListener("message", (event) => {
-      console.log("ws: received message:", event)
+      try {
+        const appEvent = JSON.parse(event.data) as AppEvent
+        console.log("app event:", appEvent)
+      } catch (err) {
+        console.error("ws: failed to parse ws message:", err)
+      }
     })
 
     this.socket.addEventListener("close", (event) => {

@@ -4,6 +4,7 @@ import type { TaskDTO } from "../dto"
 import { ulid } from "ulid"
 import { Sandbox } from "../sandbox.js"
 import { CodingAgent } from "../coding-agent"
+import type { AppEvent } from "../event"
 
 export class AgentDO extends DurableObject {
   private task!: TaskDTO
@@ -12,9 +13,7 @@ export class AgentDO extends DurableObject {
   private connections: Map<WebSocket, { [key: string]: string }>
 
   private sandbox: Sandbox | null = null
-
   private agent: CodingAgent
-  private agentSessionID: string | null = null
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env)
@@ -37,12 +36,6 @@ export class AgentDO extends DurableObject {
       const task = await this.ctx.storage.get<TaskDTO>("task")
       if (task) {
         this.task = task
-      }
-
-      const agentSessionID =
-        await this.ctx.storage.get<string>("agentSessionID")
-      if (agentSessionID) {
-        this.agentSessionID = agentSessionID
       }
     })
   }
@@ -67,7 +60,7 @@ export class AgentDO extends DurableObject {
   }
 
   async webSocketMessage(
-    ws: WebSocket,
+    _ws: WebSocket,
     message: string | ArrayBuffer,
   ): Promise<void> {
     try {
@@ -79,11 +72,9 @@ export class AgentDO extends DurableObject {
           : new TextDecoder().decode(message)
 
       const command = JSON.parse(payload) as Command
-      let isValidCommand = false
 
       switch (command.name) {
         case "SEND_MESSAGE": {
-          isValidCommand = true
           await this.agent.sendMessage(command.data.message)
           break
         }
@@ -91,32 +82,22 @@ export class AgentDO extends DurableObject {
           throw new Error(`Unknown command: ${command.name}`)
         }
       }
-
-      if (isValidCommand) {
-        this.sendAck(ws, command.name)
-      }
     } catch (err) {
       console.error("failed to handle ws message", err)
-      this.sendErrorEvent(ws, err as Error)
+      this.broadcast({
+        name: "ERROR",
+        data: {
+          message: (err as Error).message,
+        },
+      })
     }
   }
 
-  private sendAck(ws: WebSocket, commandName: Command["name"]): void {
-    const command: Command = {
-      name: "ACK",
-      data: { command: commandName },
-    }
-    ws.send(JSON.stringify(command))
-  }
-
-  private sendErrorEvent(ws: WebSocket, err: Error): void {
-    const event = {
-      name: "ERROR",
-      data: {
-        message: err,
-      },
-    }
-    ws.send(JSON.stringify(event))
+  private broadcast(event: AppEvent): void {
+    const payload = JSON.stringify(event)
+    this.connections.forEach((_, ws) => {
+      ws.send(payload)
+    })
   }
 
   async setupSandboxAndAgent(): Promise<void> {
@@ -125,16 +106,12 @@ export class AgentDO extends DurableObject {
     }
 
     const sandbox = new Sandbox()
-    await sandbox.getOrCreate(this.task)
+    await sandbox.getOrCreate(this.task, (event) => this.broadcast(event))
 
     const agentURL = await sandbox.getAgentURL()
-    const sessionID = await this.agent.getOrCreateSession(
-      this.agentSessionID,
-      agentURL,
+    await this.agent.getOrCreateSession(this.task, agentURL, (event) =>
+      this.broadcast(event),
     )
-
-    this.agentSessionID = sessionID
-    await this.ctx.storage.put("agentSessionID", sessionID)
 
     this.sandbox = sandbox
   }
