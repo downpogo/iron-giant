@@ -14,8 +14,7 @@
     {
       "binding": "DB",
       "database_name": "iron-giant-db",
-      "database_id": "e8e98a53-3b14-49d0-922d-74bc059eec18",
-      "remote": true
+      "database_id": "e8e98a53-3b14-49d0-922d-74bc059eec18"
     }
   ],
 
