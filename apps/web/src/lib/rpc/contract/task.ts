@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { oc } from "@orpc/contract"
 import { taskSchema } from "@iron-giant/core/domain"
-import { createTaskSchema } from "@iron-giant/core/input"
+import { createTaskSchema, editTaskSchema } from "@iron-giant/core/input"
 
 export const createTask = oc
   .route({ method: "POST", path: "/repositories/{repositoryID}/tasks" })
@@ -27,8 +27,14 @@ export const getTask = oc
   )
   .output(taskSchema)
 
+export const editTask = oc
+  .route({ method: "PUT", path: "/repositories/{repositoryID}/tasks/{taskID}" })
+  .input(editTaskSchema)
+  .output(z.object({ id: z.string() }))
+
 export const task = {
   create: createTask,
+  edit: editTask,
   list: listTask,
   get: getTask,
 }

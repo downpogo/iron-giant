@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm"
 import { ulid } from "ulid"
 import { repositoryTable } from "../db/schema.js"
-import type { CreateRepositoryInput } from "../input.js"
+import type { CreateRepositoryInput, EditRepositoryInput } from "../input.js"
 import type { Repository } from "../domain.js"
 import { getContext } from "../context.js"
 
@@ -64,4 +64,36 @@ export async function getRepository(id: string): Promise<Repository> {
   }
 
   return repository
+}
+
+export async function editRepository(
+  input: EditRepositoryInput,
+): Promise<string> {
+  const { db } = getContext()
+  const now = new Date().toISOString()
+
+  const update: Partial<typeof repositoryTable.$inferSelect> = {
+    updatedAt: now,
+  }
+  if (input.name !== undefined) {
+    update.name = input.name
+  }
+  if (input.url !== undefined) {
+    update.url = input.url
+  }
+
+  const res = await db
+    .update(repositoryTable)
+    .set(update)
+    .where(eq(repositoryTable.id, input.repositoryID))
+    .returning({
+      id: repositoryTable.id,
+    })
+
+  const row = res[0]
+  if (!row) {
+    throw new Error("Repository not found")
+  }
+
+  return row.id
 }

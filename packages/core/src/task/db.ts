@@ -1,7 +1,7 @@
 import { and, desc, inArray, eq } from "drizzle-orm"
 import { ulid } from "ulid"
 import { taskTable } from "../db/schema.js"
-import type { CreateTaskInput } from "../input.js"
+import type { CreateTaskInput, EditTaskInput } from "../input.js"
 import type { Task } from "../domain.js"
 import { getContext } from "../context.js"
 
@@ -80,4 +80,45 @@ export async function getTask(
   }
 
   return task
+}
+
+export async function editTask(input: EditTaskInput): Promise<string> {
+  const { db } = getContext()
+  const now = new Date().toISOString()
+
+  const update: Partial<typeof taskTable.$inferSelect> = {
+    updatedAt: now,
+  }
+  if (input.name !== undefined) {
+    update.name = input.name
+  }
+  if (input.description !== undefined) {
+    update.description = input.description
+  }
+  if (input.status !== undefined) {
+    update.status = input.status
+  }
+  if (input.repositoryBranch !== undefined) {
+    update.repositoryBranch = input.repositoryBranch
+  }
+
+  const res = await db
+    .update(taskTable)
+    .set(update)
+    .where(
+      and(
+        eq(taskTable.id, input.taskID),
+        eq(taskTable.repositoryID, input.repositoryID),
+      ),
+    )
+    .returning({
+      id: taskTable.id,
+    })
+
+  const row = res[0]
+  if (!row) {
+    throw new Error("Task not found")
+  }
+
+  return row.id
 }
