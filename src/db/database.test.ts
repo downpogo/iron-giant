@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, rmSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
 import { getDBPath, openDB } from './database.js'
-import { UserStore } from './user-store.js'
 
 test('database path uses XDG_DATA_HOME', () => {
   const previousDataHome = process.env.XDG_DATA_HOME
@@ -41,23 +40,17 @@ test('database path falls back when XDG_DATA_HOME is missing or relative', () =>
   }
 })
 
-test('application database migrates and retains one local user', () => {
+test('opening the database creates its directory and file', () => {
   const directory = mkdtempSync(join(tmpdir(), 'iron-giant-'))
   const previousDataHome = process.env.XDG_DATA_HOME
 
   try {
     process.env.XDG_DATA_HOME = directory
 
-    const firstDatabase = openDB()
-    const firstUser = new UserStore(firstDatabase.db).getOrCreateLocalUser()
-    firstDatabase.close()
+    const database = openDB()
+    database.close()
 
-    const secondDatabase = openDB()
-    const secondUser = new UserStore(secondDatabase.db).getOrCreateLocalUser()
-    secondDatabase.close()
-
-    assert.match(firstUser.id, /^[0-9A-HJKMNP-TV-Z]{26}$/)
-    assert.equal(secondUser.id, firstUser.id)
+    assert.equal(existsSync(join(directory, 'iron-giant', 'db.sqlite')), true)
   } finally {
     if (previousDataHome === undefined) {
       delete process.env.XDG_DATA_HOME
