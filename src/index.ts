@@ -12,4 +12,9 @@ const program = new Command()
 
 registerLoginCommand(program)
 
-await program.parseAsync()
+try {
+  await program.parseAsync()
+} catch (error) {
+  console.error(error instanceof Error ? error.message : 'Unexpected error')
+  process.exitCode = 1
+}
