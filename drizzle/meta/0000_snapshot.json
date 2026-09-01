@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0c28efd7-4052-4ecb-85fa-f8b06d734dbb",
+  "id": "242b85fe-14db-45c7-8b95-641df684ff7f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "git_connections": {
@@ -66,14 +66,6 @@
             "user_id",
             "provider",
             "provider_account_id"
-          ],
-          "isUnique": true
-        },
-        "git_connections_id_user_unique": {
-          "name": "git_connections_id_user_unique",
-          "columns": [
-            "id",
-            "user_id"
           ],
           "isUnique": true
         }
@@ -158,24 +150,7 @@
           "default": "(unixepoch('subsec') * 1000)"
         }
       },
-      "indexes": {
-        "repositories_id_user_unique": {
-          "name": "repositories_id_user_unique",
-          "columns": [
-            "id",
-            "user_id"
-          ],
-          "isUnique": true
-        },
-        "repositories_user_created_at_idx": {
-          "name": "repositories_user_created_at_idx",
-          "columns": [
-            "user_id",
-            "created_at"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "repositories_user_id_users_id_fk": {
           "name": "repositories_user_id_users_id_fk",
@@ -190,17 +165,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "repositories_connection_owner_fk": {
-          "name": "repositories_connection_owner_fk",
+        "repositories_git_connection_id_git_connections_id_fk": {
+          "name": "repositories_git_connection_id_git_connections_id_fk",
           "tableFrom": "repositories",
           "tableTo": "git_connections",
           "columnsFrom": [
-            "git_connection_id",
-            "user_id"
+            "git_connection_id"
           ],
           "columnsTo": [
-            "id",
-            "user_id"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -293,24 +266,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "sessions_user_created_at_idx": {
-          "name": "sessions_user_created_at_idx",
-          "columns": [
-            "user_id",
-            "created_at"
-          ],
-          "isUnique": false
-        },
-        "sessions_status_expires_at_idx": {
-          "name": "sessions_status_expires_at_idx",
-          "columns": [
-            "status",
-            "expires_at"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
@@ -325,17 +281,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "sessions_repository_owner_fk": {
-          "name": "sessions_repository_owner_fk",
+        "sessions_repository_id_repositories_id_fk": {
+          "name": "sessions_repository_id_repositories_id_fk",
           "tableFrom": "sessions",
           "tableTo": "repositories",
           "columnsFrom": [
-            "repository_id",
-            "user_id"
+            "repository_id"
           ],
           "columnsTo": [
-            "id",
-            "user_id"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -343,12 +297,7 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {
-        "sessions_status_check": {
-          "name": "sessions_status_check",
-          "value": "\"sessions\".\"status\" in ('provisioning', 'running', 'stopping', 'stopped', 'expired', 'failed')"
-        }
-      }
+      "checkConstraints": {}
     },
     "users": {
       "name": "users",
