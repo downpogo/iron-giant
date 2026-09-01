@@ -4,10 +4,12 @@ import { z } from 'zod'
 
 loadEnv({ quiet: true })
 
-export const config = createEnv({
-  server: {
-    GITHUB_OAUTH_CLIENT_ID: z.string().trim().min(1),
-  },
-  runtimeEnv: process.env,
-  emptyStringAsUndefined: true,
-})
+export function getConfig() {
+  return createEnv({
+    server: {
+      GITHUB_OAUTH_CLIENT_ID: z.string().trim().min(1),
+    },
+    runtimeEnv: process.env,
+    emptyStringAsUndefined: true,
+  })
+}

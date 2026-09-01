@@ -2,6 +2,7 @@
 
 import { Command } from 'commander'
 
+import { registerAuthStatusCommand } from '@/cli/auth-status.js'
 import { registerLoginCommand } from '@/cli/login.js'
 
 const program = new Command()
@@ -10,7 +11,12 @@ const program = new Command()
   .version('0.1.0')
   .showHelpAfterError()
 
-registerLoginCommand(program)
+const auth = program
+  .command('auth')
+  .description('Manage Git provider authentication')
+
+registerLoginCommand(auth)
+registerAuthStatusCommand(auth)
 
 try {
   await program.parseAsync()

@@ -40,6 +40,8 @@ type GitHubProviderOptions = {
 }
 
 export class GitHubProvider implements GitProvider {
+  readonly name = 'github'
+
   private readonly clientId: string
   private readonly request: Request
   private readonly sleep: (milliseconds: number) => Promise<void>

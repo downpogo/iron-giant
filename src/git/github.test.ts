@@ -40,9 +40,29 @@ test('GitHub device flow authenticates and fetches the account', async () => {
   })
 
   let shownCode: string | undefined
-  const result = await login(provider, (authorization) => {
-    shownCode = authorization.userCode
-  })
+  const savedCredentials: Array<{ key: object; secret: string }> = []
+  const savedConnections: object[] = []
+  const result = await login(
+    {
+      userId: 'user-1',
+      provider,
+      credentials: {
+        get: async () => undefined,
+        set: async (key, secret) => {
+          savedCredentials.push({ key, secret })
+        },
+      },
+      connections: {
+        upsert: (input) => {
+          savedConnections.push(input)
+          return { id: 'connection-1' }
+        },
+      },
+    },
+    (authorization) => {
+      shownCode = authorization.userCode
+    },
+  )
 
   assert.equal(shownCode, 'ABCD-1234')
   assert.deepEqual(sleeps, [5000, 5000])
@@ -56,9 +76,23 @@ test('GitHub device flow authenticates and fetches the account', async () => {
     ],
   )
   assert.deepEqual(result, {
-    accessToken: 'secret-token',
     account: { id: '123', username: 'octocat' },
+    connection: { id: 'connection-1' },
   })
+  assert.deepEqual(savedCredentials, [
+    {
+      key: { provider: 'github', providerAccountId: '123' },
+      secret: 'secret-token',
+    },
+  ])
+  assert.deepEqual(savedConnections, [
+    {
+      userId: 'user-1',
+      provider: 'github',
+      providerAccountId: '123',
+      providerUsername: 'octocat',
+    },
+  ])
 })
 
 test('GitHub device flow reports authorization denial', async () => {

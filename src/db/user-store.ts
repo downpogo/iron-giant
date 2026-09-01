@@ -6,8 +6,12 @@ import * as schema from './schema.js'
 export class UserStore {
   constructor(private readonly db: BetterSQLite3Database<typeof schema>) {}
 
+  getLocalUser() {
+    return this.db.select().from(schema.users).get()
+  }
+
   getOrCreateLocalUser() {
-    const existingUser = this.db.select().from(schema.users).get()
+    const existingUser = this.getLocalUser()
 
     if (existingUser) {
       return existingUser
