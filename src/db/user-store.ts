@@ -1,6 +1,6 @@
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { ulid } from 'ulid'
 
+import { generateID } from '@/id.js'
 import * as schema from './schema.js'
 
 export class UserStore {
@@ -13,6 +13,10 @@ export class UserStore {
       return existingUser
     }
 
-    return this.db.insert(schema.users).values({ id: ulid() }).returning().get()
+    return this.db
+      .insert(schema.users)
+      .values({ id: generateID() })
+      .returning()
+      .get()
   }
 }

@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "iron-giant": "./dist/index.js"
+  },
   "scripts": {
-    "build": "tsc6",
+    "build": "tsc6 && tsc-alias",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "dev": "tsx watch src/index.ts",
@@ -37,12 +40,14 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.4.1",
     "prettier": "^3.9.6",
+    "tsc-alias": "^1.9.3",
     "tsx": "latest",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "^8.69.0"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
+    "commander": "^15.0.0",
     "drizzle-orm": "^0.45.2",
     "ulid": "^3.0.2"
   }

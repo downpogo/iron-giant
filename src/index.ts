@@ -1,10 +1,15 @@
-import { openDB } from './db/database.js'
-import { UserStore } from './db/user-store.js'
+#!/usr/bin/env node
 
-const database = openDB()
+import { Command } from 'commander'
 
-try {
-  new UserStore(database.db).getOrCreateLocalUser()
-} finally {
-  database.close()
-}
+import { registerLoginCommand } from '@/cli/login.js'
+
+const program = new Command()
+  .name('iron-giant')
+  .description('Run coding sessions in isolated sandboxes')
+  .version('0.1.0')
+  .showHelpAfterError()
+
+registerLoginCommand(program)
+
+await program.parseAsync()
