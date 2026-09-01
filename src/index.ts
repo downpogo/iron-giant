@@ -4,6 +4,7 @@ import { Command } from 'commander'
 
 import { registerAuthStatusCommand } from '@/cli/auth-status.js'
 import { registerLoginCommand } from '@/cli/login.js'
+import { registerRepoCommands } from '@/cli/repo.js'
 
 const program = new Command()
   .name('iron-giant')
@@ -17,6 +18,9 @@ const auth = program
 
 registerLoginCommand(auth)
 registerAuthStatusCommand(auth)
+
+const repo = program.command('repo').description('Manage repositories')
+registerRepoCommands(repo)
 
 try {
   await program.parseAsync()

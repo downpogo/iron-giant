@@ -117,3 +117,46 @@ test('GitHub device flow reports authorization denial', async () => {
     /GitHub authorization was denied/,
   )
 })
+
+test('GitHub provider resolves repository metadata from an HTTPS URL', async () => {
+  let requestedUrl: string | undefined
+  const provider = new GitHubProvider({
+    clientId: 'client-id',
+    request: async (input) => {
+      requestedUrl = input.toString()
+      return Response.json({
+        id: 456,
+        owner: { login: 'acme' },
+        name: 'api',
+        clone_url: 'https://github.com/acme/api.git',
+      })
+    },
+  })
+
+  const repository = await provider.getRepository(
+    'https://github.com/acme/api.git',
+    'secret-token',
+  )
+
+  assert.equal(requestedUrl, 'https://api.github.com/repos/acme/api')
+  assert.deepEqual(repository, {
+    providerRepositoryId: '456',
+    owner: 'acme',
+    name: 'api',
+    cloneUrl: 'https://github.com/acme/api.git',
+  })
+})
+
+test('GitHub provider rejects non-GitHub repository URLs', async () => {
+  const provider = new GitHubProvider({
+    clientId: 'client-id',
+    request: async () => {
+      throw new Error('should not be called')
+    },
+  })
+
+  await assert.rejects(
+    provider.getRepository('https://example.com/acme/api', 'secret-token'),
+    /valid GitHub HTTPS URL/,
+  )
+})
