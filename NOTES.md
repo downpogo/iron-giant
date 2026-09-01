@@ -20,14 +20,20 @@ User
 
 ```text
 Create session
-  -> provision sandbox
+  -> provision sandbox from the published template
   -> inject narrowly scoped Git credentials
   -> clone repository
-  -> install and configure OpenCode
+  -> configure OpenCode
   -> start OpenCode server
   -> expose and return its URL
   -> destroy sandbox when stopped or expired
 ```
+
+The MVP uses the E2B template `iron-giant-opencode:v1`
+(`zmc49ttgp61vpq61vub2`). It provides 2 vCPUs, 4 GiB RAM, Node.js 24.14.0,
+Git, and OpenCode 1.18.25. Its definition is maintained under `e2b/`, built
+explicitly with `pnpm sandbox:build`, and consumed at runtime through
+`E2B_TEMPLATE`.
 
 ## Provider Boundaries
 

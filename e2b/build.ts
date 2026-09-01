@@ -10,8 +10,10 @@ if (!process.env.E2B_API_KEY?.trim()) {
   throw new Error('E2B_API_KEY is required to build the sandbox template')
 }
 
-await Template.build(template, templateName, {
-  cpuCount: 1,
-  memoryMB: 1024,
+const build = await Template.build(template, templateName, {
+  cpuCount: 2,
+  memoryMB: 4096,
   onBuildLogs: defaultBuildLogger(),
 })
+
+console.log(build)
